@@ -1,4 +1,4 @@
-# VestRoll: ZK-Payroll
+# VestRoll: Payroll
 
 VestRoll is a payroll and invoicing platform built for the 2026 financial ecosystem. Built with **Next.js 15**, **React 19**, and the **Stellar Soroban** stack, it offers a "No-Crypto" UX where privacy, speed, and biometric security are standard.
 
@@ -103,11 +103,6 @@ VestRoll development is structured across 4 Strategic Tranches:
 3. **Tranche 3**: Privacy Shield (Shielded Testnet).
 4. **Tranche 4**: Mainnet Launch & UX Audit.
 
-**Detailed Checklists:**
-
-- [Master Engineering Roadmap](file:///C:/Users/TCE HUB/.gemini/antigravity/brain/6ca2dde2-48cc-4948-bc2e-55cf56f46056/vestroll_master_roadmap_2026.md)
-- [Backend Contributor Guide (150+ Tasks)](file:///C:/Users/TCE HUB/.gemini/antigravity/brain/6ca2dde2-48cc-4948-bc2e-55cf56f46056/backend_engineering_roadmap.md)
-- [NGN Fiat Implementation Guide](file:///C:/Users/TCE HUB/.gemini/antigravity/brain/6ca2dde2-48cc-4948-bc2e-55cf56f46056/fiat_naira_roadmap.md)
 
 ---
 
