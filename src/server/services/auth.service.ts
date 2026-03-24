@@ -1,4 +1,4 @@
-import { db, emailVerifications, users, organizations } from "../db";
+import { db, emailVerifications, users, organizations, loginAttempts, biometricLogs } from "../db";
 import crypto from "crypto";
 import { OTP_EXPIRATION_MINUTES } from "./email-verification.service";
 import { UserService } from "./user.service";
@@ -112,6 +112,8 @@ export class AuthService {
         email,
         ipAddress: metadata.ipAddress,
         userAgent: metadata.userAgent,
+        lastLoginIp: metadata.ipAddress,
+        lastLoginUa: metadata.userAgent,
         success: false,
         failureReason: "Rate limit exceeded",
       });
@@ -126,6 +128,8 @@ export class AuthService {
         email,
         ipAddress: metadata.ipAddress,
         userAgent: metadata.userAgent,
+        lastLoginIp: metadata.ipAddress,
+        lastLoginUa: metadata.userAgent,
         success: false,
         failureReason: "User not found",
       });
@@ -138,6 +142,8 @@ export class AuthService {
         email,
         ipAddress: metadata.ipAddress,
         userAgent: metadata.userAgent,
+        lastLoginIp: metadata.ipAddress,
+        lastLoginUa: metadata.userAgent,
         success: false,
         failureReason: "Account locked",
       });
@@ -151,6 +157,8 @@ export class AuthService {
         email,
         ipAddress: metadata.ipAddress,
         userAgent: metadata.userAgent,
+        lastLoginIp: metadata.ipAddress,
+        lastLoginUa: metadata.userAgent,
         success: false,
         failureReason: "Unverified account",
       });
@@ -169,6 +177,8 @@ export class AuthService {
         email,
         ipAddress: metadata.ipAddress,
         userAgent: metadata.userAgent,
+        lastLoginIp: metadata.ipAddress,
+        lastLoginUa: metadata.userAgent,
         success: false,
         failureReason: "Invalid password",
       });
@@ -206,13 +216,19 @@ export class AuthService {
 
     await db
       .update(users)
-      .set({ lastLoginAt: new Date() })
+      .set({
+        lastLoginAt: new Date(),
+        lastLoginIp: metadata.ipAddress,
+        lastLoginUa: metadata.userAgent,
+      })
       .where(eq(users.id, user.id));
 
     await LoginAttemptService.logAttempt({
       email,
       ipAddress: metadata.ipAddress,
       userAgent: metadata.userAgent,
+      lastLoginIp: metadata.ipAddress,
+      lastLoginUa: metadata.userAgent,
       success: true,
     });
 
@@ -226,6 +242,92 @@ export class AuthService {
         lastName: user.lastName,
       },
     };
+  }
+
+  static async passkeyLogin(
+    email: string,
+    metadata: { ipAddress?: string; userAgent?: string },
+  ) {
+    // Passkey Login Logic Skeleton
+    // This will be used by the @stellar/passkey-kit flow
+    const user = await UserService.findByEmail(email);
+
+    if (!user) {
+      await db.insert(biometricLogs).values({
+        email,
+        lastLoginIp: metadata.ipAddress,
+        lastLoginUa: metadata.userAgent,
+        success: false,
+        failureReason: "User not found",
+      });
+      throw new UnauthorizedError("Identity not found");
+    }
+
+    try {
+      // Logic for passkey verification would go here
+
+      await db.insert(biometricLogs).values({
+        userId: user.id,
+        email: user.email,
+        lastLoginIp: metadata.ipAddress,
+        lastLoginUa: metadata.userAgent,
+        success: true,
+      });
+
+      await db
+        .update(users)
+        .set({
+          lastLoginAt: new Date(),
+          lastLoginIp: metadata.ipAddress,
+          lastLoginUa: metadata.userAgent,
+        })
+        .where(eq(users.id, user.id));
+
+      // Generate credentials
+      const sessionId = crypto.randomUUID();
+      const accessToken = await JWTTokenService.generateAccessToken({
+        userId: user.id,
+        email: user.email,
+      });
+
+      const refreshToken = await JWTTokenService.generateRefreshToken(
+        {
+          userId: user.id,
+          email: user.email,
+          sessionId,
+        },
+        true,
+      );
+
+      await SessionManagementService.createSession(
+        user.id,
+        refreshToken,
+        metadata.userAgent,
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        sessionId,
+      );
+
+      return {
+        accessToken,
+        refreshToken,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+      };
+    } catch (error) {
+      await db.insert(biometricLogs).values({
+        userId: user.id,
+        email: user.email,
+        lastLoginIp: metadata.ipAddress,
+        lastLoginUa: metadata.userAgent,
+        success: false,
+        failureReason: error instanceof Error ? error.message : "Passkey verification failed",
+      });
+      throw error;
+    }
   }
 
   static async changePassword(

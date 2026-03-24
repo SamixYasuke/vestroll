@@ -126,6 +126,8 @@ export const users = pgTable("users", {
   oauthProvider: oauthProviderEnum("oauth_provider"),
   oauthId: varchar("oauth_id", { length: 255 }),
   lastLoginAt: timestamp("last_login_at"),
+  lastLoginIp: varchar("last_login_ip", { length: 45 }),
+  lastLoginUa: text("last_login_ua"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -210,6 +212,19 @@ export const loginAttempts = pgTable("login_attempts", {
   email: varchar("email", { length: 255 }).notNull(),
   ipAddress: varchar("ip_address", { length: 45 }),
   userAgent: text("user_agent"),
+  lastLoginIp: varchar("last_login_ip", { length: 45 }),
+  lastLoginUa: text("last_login_ua"),
+  success: boolean("success").notNull(),
+  failureReason: text("failure_reason"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const biometricLogs = pgTable("biometric_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  email: varchar("email", { length: 255 }),
+  lastLoginIp: varchar("last_login_ip", { length: 45 }),
+  lastLoginUa: text("last_login_ua"),
   success: boolean("success").notNull(),
   failureReason: text("failure_reason"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
