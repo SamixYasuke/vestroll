@@ -176,6 +176,7 @@ describe("OAuthUserProvisioningService", () => {
             expect(result.email).toBe("newuser@example.com");
             expect(result.status).toBe("active");
             expect(result.passwordHash).toBeNull();
+            expect(result.signerType).toBe("Email");
             expect(mockInsert).toHaveBeenCalled();
         });
     });
