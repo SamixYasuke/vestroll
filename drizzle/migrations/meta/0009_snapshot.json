@@ -1,5 +1,6 @@
 {
   "id": "581dfa7a-ba2f-4028-bbac-a24eda81734b",
+  "id": "1823954f-7171-4862-961b-aadfb78fdaa6",
   "prevId": "ec48320e-d39f-4d00-a6d8-8f19bc90f843",
   "version": "7",
   "dialect": "postgresql",
@@ -708,6 +709,24 @@
         "avatar_url": {
           "name": "avatar_url",
           "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bank_name": {
+          "name": "bank_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "account_number": {
+          "name": "account_number",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "account_name": {
+          "name": "account_name",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
