@@ -8,7 +8,9 @@ import { db } from "../db";
 import { sql } from "drizzle-orm";
 import { resetDatabase } from "../test/db-utils";
 
-describe("Finance Wallet funding flow (simulated deposit)", () => {
+const run = process.env.DATABASE_URL ? describe : describe.skip;
+
+run("Finance Wallet funding flow (simulated deposit)", () => {
   beforeEach(async () => {
     process.env.NODE_ENV = "test";
     await resetDatabase();
