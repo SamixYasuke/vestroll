@@ -8,11 +8,15 @@ import { db } from "../db";
 import { sql } from "drizzle-orm";
 import { resetDatabase } from "../test/db-utils";
 
-const hasDb = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
-const run = hasDb ? describe : describe.skip;
+const describeIfDb = process.env.TEST_DATABASE_URL ? describe : describe.skip;
+const run = describeIfDb;
 
-if (hasDb && !process.env.TEST_DATABASE_URL) {
+if (!process.env.TEST_DATABASE_URL) {
   throw new Error("TEST_DATABASE_URL must be set for this test");
+}
+
+if (!process.env.TEST_DATABASE_URL.includes("test")) {
+  throw new Error("Refusing to run tests on non-test database");
 }
 
 run("Finance Wallet funding flow (simulated deposit)", () => {
