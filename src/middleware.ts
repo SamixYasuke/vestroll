@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { JWTService } from "@/server/services/jwt.service";
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") ?? [];
   const origin = req.headers.get("origin");
 
